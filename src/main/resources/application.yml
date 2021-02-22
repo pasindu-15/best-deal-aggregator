@@ -1,0 +1,7 @@
+server:
+  port: 8086
+base-url:
+  context: /best-deal/aggregator
+
+log:
+  identifierKey: UUID
