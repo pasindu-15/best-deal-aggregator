@@ -1,7 +1,12 @@
-server:
-  port: 8086
 base-url:
-  context: /best-deal/aggregator
+  context: /aggregator
 
 log:
   identifierKey: UUID
+
+external-urls:
+  product-catalog:
+    matching-products: http://localhost:8080/aggregator/catalog/matchingProducts
+    preferred-product: http://localhost:8080/aggregator/catalog/prefferdProduct
+
+  feature-detection: http://localhost:8080/aggregator/features/find
