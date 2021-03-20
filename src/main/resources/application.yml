@@ -1,5 +1,5 @@
 base-url:
-  context: /aggregator
+  context: /best-deal/aggregator/v1
 
 log:
   identifierKey: UUID
@@ -9,4 +9,4 @@ external-urls:
     matching-products: http://localhost:8080/aggregator/catalog/matchingProducts
     preferred-product: http://localhost:8080/aggregator/catalog/prefferdProduct
 
-  feature-detection: http://localhost:8080/aggregator/features/find
+  feature-detection: http://localhost:8085/best-deal/cloud-api/v1/vision/product-detect

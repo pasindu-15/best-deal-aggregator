@@ -1,9 +1,12 @@
 package com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.external.service;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.boundary.FeatureDetectionInterface;
-import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainFeatureResponseEntity;
+import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.FeatureDetection;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainImageRequestEntity;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.external.exception.WebClientException;
+import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.external.externalrequest.ProductDetectionRequest;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +25,9 @@ public class FeatureDetectionService implements FeatureDetectionInterface {
     @Value("${external-urls.feature-detection}")
     String url;
 
-    public DomainFeatureResponseEntity getFeatures(DomainImageRequestEntity domainImageRequestEntity) throws WebClientException {
+    Gson gson = new GsonBuilder().create();
+
+    public FeatureDetection getFeatures(DomainImageRequestEntity domainImageRequestEntity) throws WebClientException {
 
         // Create a new RestTemplate instance
         RestTemplate restTemplate = new RestTemplate();
@@ -33,26 +38,35 @@ public class FeatureDetectionService implements FeatureDetectionInterface {
         headers.set("UUID", MDC.get("UUID"));
 
         //Constructing request
-        JSONObject request = new JSONObject();
-        request.put("imagesBase64",new JSONArray().put(domainImageRequestEntity.getImageBase64()));
+//        JSONObject request = new JSONObject();
+//        request.put("imagesBase64",new JSONArray().put(domainImageRequestEntity.getImageBase64()));
 
-        log.info("FeatureDetectionService: Transformed Request : "+request.toString());
+        ProductDetectionRequest productDetectionRequest = new ProductDetectionRequest(domainImageRequestEntity.getImageBase64());
 
-        HttpEntity<JSONObject> entity = new HttpEntity<JSONObject>(request,headers);
 
-        JSONObject response = restTemplate.exchange(url, HttpMethod.POST, entity, JSONObject.class).getBody();
+        log.info("FeatureDetectionService: Transformed Request : "+productDetectionRequest.toString());
+
+
+        HttpEntity<?> entity = new HttpEntity<>(productDetectionRequest.toString(),headers);
+
+        String response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+
+        JSONObject resJson = new JSONObject(response);
 
         log.info("FeatureDetectionService: Transformed Response : "+response.toString());
 
-        if(! response.getString("resCode").equals("00")){
+        if(! resJson.getString("resCode").equals("00")){
             throw new WebClientException("Product Detection Web Client Exception!", "99");
         }
 
-        DomainFeatureResponseEntity domainFeatureResponseEntity = new DomainFeatureResponseEntity();
-        domainFeatureResponseEntity.setData(response.getJSONArray("data"));
-        domainFeatureResponseEntity.setResDesc(response.getString("resCode"));
-        domainFeatureResponseEntity.setResCode(response.getString("resCode"));
+        FeatureDetection featureDetection = new FeatureDetection();
+        featureDetection.setMainFeature(resJson.getJSONArray("data").getJSONObject(0).getString("mainFeature"));
+        featureDetection.setFeatures(resJson.getJSONArray("data").getJSONObject(0).getJSONArray("features"));
+        featureDetection.setResDesc(resJson.getString("resCode"));
+        featureDetection.setResCode(resJson.getString("resCode"));
 
-        return domainFeatureResponseEntity;
+        return featureDetection;
     }
+
+
 }

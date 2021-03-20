@@ -10,9 +10,8 @@ import org.json.JSONArray;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DomainFeatureResponseEntity {
+public class MatchingProducts {
     private JSONArray data;
     private String resDesc;
     private String resCode;
 }
-

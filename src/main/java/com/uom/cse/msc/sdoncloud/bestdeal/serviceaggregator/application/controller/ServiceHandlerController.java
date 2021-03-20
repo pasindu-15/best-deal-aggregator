@@ -5,7 +5,7 @@ import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.application.transpor
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.application.transport.response.transformers.MatchingProductResponseTransformer;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.application.transport.response.transformers.ProductOffersResponseTransformer;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainImageRequestEntity;
-import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainMatchingProductsResponseEntity;
+import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.MatchingProducts;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainProductOffersRequestEntity;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainProductOffersResponseEntity;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.service.ProductOffersFinderService;
@@ -25,9 +25,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RestController
-@RequestMapping("${base-url.context}/mobile")
+@RequestMapping("${base-url.context}/service-handler")
 @Log4j2
-public class MobileController extends BaseController {
+public class ServiceHandlerController extends BaseController {
 
     @Autowired
     ProductsFinderService productsFinderService;
@@ -38,8 +38,7 @@ public class MobileController extends BaseController {
     @Autowired
     ResponseEntityTransformer responseEntityTransformer;
 
-    @Autowired
-    MatchingProductResponseTransformer matchingProductResponseTransformer;
+
 
     @Autowired
     ProductOffersResponseTransformer productOffersResponseTransformer;
@@ -47,33 +46,24 @@ public class MobileController extends BaseController {
     @Autowired
     private RequestEntityValidator validator;
 
-    @GetMapping("")
-    String hello() {
-        return "Hello! Mobile Controller is running";
-    }
-
     @PostMapping(value="/searchProducts", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> searchProducts(@Validated @RequestBody(required = true) ImageRequest imageRequest, HttpServletRequest request)throws Exception{
+        setLogIdentifier(request);
 
-//      TODO: set UUID
-            setLogIdentifier(request);
-//      TODO: validate the request
-//            validator.validate(imageRequest);
-//            log.info("Request validation success");
 
-            log.info("Transformed imageRequestEntity : "+imageRequest.toString());
-//      TODO: request object map to domain entity object
-            DomainImageRequestEntity domainImageRequestEntity = new ModelMapper().map(imageRequest, DomainImageRequestEntity.class);
+        log.info("Transformed imageRequestEntity : "+imageRequest.toString());
 
-//      TODO: call domain business logic
-            DomainMatchingProductsResponseEntity domainMatchingProductsResponseEntity = productsFinderService.findProducts(domainImageRequestEntity);
+        DomainImageRequestEntity domainImageRequestEntity = new ModelMapper().map(imageRequest, DomainImageRequestEntity.class);
 
-//      TODO: transform domain response
-            Map trResponse = responseEntityTransformer.transform(domainMatchingProductsResponseEntity, matchingProductResponseTransformer);
-            log.info("MobileController: searchProducts : Transformed response : "+trResponse.toString());
 
-//      TODO: return response
-            return ResponseEntity.status(HttpStatus.OK).body(trResponse);
+        MatchingProducts matchingProducts = productsFinderService.findProducts(domainImageRequestEntity);
+
+
+        Map trResponse = responseEntityTransformer.transform(matchingProducts, new MatchingProductResponseTransformer());
+        log.info("ServiceHandlerController: searchProducts : Transformed response : "+trResponse.toString());
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(trResponse);
     }
 
     @PostMapping(value="/getProductOffers", produces = MediaType.APPLICATION_JSON_VALUE)

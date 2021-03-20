@@ -1,7 +1,7 @@
 
 package com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.application.transport.response.transformers;
 
-import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainMatchingProductsResponseEntity;
+import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.MatchingProducts;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.application.transformer.ResponseEntityInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class MatchingProductResponseTransformer implements ResponseEntityInterface {
     @Override
     public Map transform(Object entity) throws JsonProcessingException {
-        DomainMatchingProductsResponseEntity response = (DomainMatchingProductsResponseEntity)entity;
+        MatchingProducts response = (MatchingProducts)entity;
 
         HashMap<String,Object> mapping = new ObjectMapper().readValue(response.toString(), HashMap.class);
 

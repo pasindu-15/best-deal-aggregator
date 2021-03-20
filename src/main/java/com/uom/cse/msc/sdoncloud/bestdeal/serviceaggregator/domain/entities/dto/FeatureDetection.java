@@ -6,12 +6,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.json.JSONArray;
 
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DomainMatchingProductsResponseEntity {
-    private JSONArray data;
+public class FeatureDetection {
+    private String mainFeature;
+    private JSONArray features;
     private String resDesc;
     private String resCode;
 }
+

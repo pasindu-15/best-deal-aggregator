@@ -1,11 +1,12 @@
 package com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.external.service;
 
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.boundary.ProductCatalogInterface;
-import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainFeatureResponseEntity;
-import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainMatchingProductsResponseEntity;
+import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.FeatureDetection;
+import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.MatchingProducts;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainProductOffersRequestEntity;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.domain.entities.dto.DomainProductOffersResponseEntity;
 import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.external.exception.WebClientException;
+import com.uom.cse.msc.sdoncloud.bestdeal.serviceaggregator.external.externalrequest.MatchingProductsRequest;
 import org.json.JSONObject;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +28,7 @@ public class ProductCatalogService implements ProductCatalogInterface {
     @Value("${external-urls.product-catalog.preferred-product}")
     String preferredProductUrl;
 
-    public DomainMatchingProductsResponseEntity getMatchingProducts(DomainFeatureResponseEntity domainFeatureResponseEntity) throws WebClientException {
+    public MatchingProducts getMatchingProducts(FeatureDetection featureDetection) throws WebClientException {
 
         // Create a new RestTemplate instance
         RestTemplate restTemplate = new RestTemplate();
@@ -36,22 +37,27 @@ public class ProductCatalogService implements ProductCatalogInterface {
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         headers.set("UUID", MDC.get("UUID"));
 
-        JSONObject request = new JSONObject(domainFeatureResponseEntity.getData().get(0));
+        MatchingProductsRequest matchingProductsRequest = new MatchingProductsRequest(featureDetection.getMainFeature(),featureDetection.getFeatures());
 
-        HttpEntity<JSONObject> entity = new HttpEntity<JSONObject>(request,headers);
+//        JSONObject request = new JSONObject();
+//        request.put("features",featureDetection.getFeatures());
+//        request.put("mainFeature",featureDetection.getMainFeature());
 
-        JSONObject response = restTemplate.exchange(matchingProductsUrl, HttpMethod.POST, entity, JSONObject.class).getBody();
+        HttpEntity<?> entity = new HttpEntity<>(matchingProductsRequest.toString(),headers);
 
-        if(! response.getString("resCode").equals("00")){
+        String response = restTemplate.exchange(matchingProductsUrl, HttpMethod.POST, entity, String.class).getBody();
+        JSONObject jsonRes = new JSONObject(response);
+
+        if(! jsonRes.getString("resCode").equals("00")){
             throw new WebClientException("Product Catalog Web Client Exception!", "99");
         }
 
-        DomainMatchingProductsResponseEntity domainMatchingProductsResponseEntity = new DomainMatchingProductsResponseEntity();
-        domainMatchingProductsResponseEntity.setData(response.getJSONArray("data"));
-        domainMatchingProductsResponseEntity.setResCode(response.getString("resCode"));
-        domainMatchingProductsResponseEntity.setResDesc(response.getString("resDesc"));
+        MatchingProducts matchingProducts = new MatchingProducts();
+        matchingProducts.setData(jsonRes.getJSONArray("data"));
+        matchingProducts.setResCode(jsonRes.getString("resCode"));
+        matchingProducts.setResDesc(jsonRes.getString("resDesc"));
 
-        return domainMatchingProductsResponseEntity;
+        return matchingProducts;
     }
 
     public DomainProductOffersResponseEntity getProductOffers(DomainProductOffersRequestEntity domainProductOffersRequestEntity) throws WebClientException {
