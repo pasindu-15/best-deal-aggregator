@@ -16,7 +16,9 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Log4j2
 @Service
@@ -25,7 +27,7 @@ public class FeatureDetectionService implements FeatureDetectionInterface {
     @Value("${external-urls.feature-detection}")
     String url;
 
-    Gson gson = new GsonBuilder().create();
+
 
     public FeatureDetection getFeatures(DomainImageRequestEntity domainImageRequestEntity) throws WebClientException {
 
@@ -44,7 +46,7 @@ public class FeatureDetectionService implements FeatureDetectionInterface {
         ProductDetectionRequest productDetectionRequest = new ProductDetectionRequest(domainImageRequestEntity.getImageBase64());
 
 
-        log.info("FeatureDetectionService: Transformed Request : "+productDetectionRequest.toString());
+        log.info("FeatureDetectionService Request : "+productDetectionRequest.toString());
 
 
         HttpEntity<?> entity = new HttpEntity<>(productDetectionRequest.toString(),headers);
@@ -53,7 +55,7 @@ public class FeatureDetectionService implements FeatureDetectionInterface {
 
         JSONObject resJson = new JSONObject(response);
 
-        log.info("FeatureDetectionService: Transformed Response : "+response.toString());
+        log.info("FeatureDetectionService Response : "+response.toString());
 
         if(! resJson.getString("resCode").equals("00")){
             throw new WebClientException("Product Detection Web Client Exception!", "99");
@@ -61,7 +63,13 @@ public class FeatureDetectionService implements FeatureDetectionInterface {
 
         FeatureDetection featureDetection = new FeatureDetection();
         featureDetection.setMainFeature(resJson.getJSONArray("data").getJSONObject(0).getString("mainFeature"));
-        featureDetection.setFeatures(resJson.getJSONArray("data").getJSONObject(0).getJSONArray("features"));
+        List<String> features = new ArrayList<>();
+        for (Object ob:resJson.getJSONArray("data").getJSONObject(0).getJSONArray("features")) {
+            String f = (String)ob;
+            features.add(f);
+
+        }
+        featureDetection.setFeatures(features);
         featureDetection.setResDesc(resJson.getString("resCode"));
         featureDetection.setResCode(resJson.getString("resCode"));
 

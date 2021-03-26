@@ -6,12 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.json.JSONArray;
 
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class MatchingProducts {
-    private JSONArray data;
+    private List<Product> data;
     private String resDesc;
     private String resCode;
 }

@@ -6,7 +6,9 @@ log:
 
 external-urls:
   product-catalog:
-    matching-products: http://localhost:8080/aggregator/catalog/matchingProducts
-    preferred-product: http://localhost:8080/aggregator/catalog/prefferdProduct
+    matching-products: http://localhost:8081/best-deal/product-catalog/v1/product/search-product
+#    preferred-product: http://localhost:8081/best-deal/product-catalog/v1/product/{productId}
+    preferred-product: http://localhost:8081/best-deal/product-catalog/v1/product/
+
 
   feature-detection: http://localhost:8085/best-deal/cloud-api/v1/vision/product-detect

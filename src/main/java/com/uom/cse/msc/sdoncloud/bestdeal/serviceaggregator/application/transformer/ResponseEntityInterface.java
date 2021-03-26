@@ -7,5 +7,5 @@ import java.util.Map;
 
 public interface ResponseEntityInterface {
 
-    public Map transform(Object entity) throws JsonProcessingException;
+    public Map transform(Object entity);
 }

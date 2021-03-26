@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class FeatureDetection {
     private String mainFeature;
-    private JSONArray features;
+    private List<String> features;
     private String resDesc;
     private String resCode;
 }

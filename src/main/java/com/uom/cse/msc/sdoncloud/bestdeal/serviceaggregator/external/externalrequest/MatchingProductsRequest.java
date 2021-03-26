@@ -6,18 +6,19 @@ import java.util.List;
 
 public class MatchingProductsRequest {
 
-    private String features;
-    private JSONArray mainFeature;
+    private List<String> features;
+    private String mainFeature;
 
-    public MatchingProductsRequest(String features, JSONArray mainFeature) {
+    public MatchingProductsRequest(String mainFeature, List<String> features) {
         this.features = features;
         this.mainFeature = mainFeature;
     }
 
-    @Override
-    public String toString() {
-        return "{ \n   " +
-                "   \"features\": "+features+",\n   " +
-                "   \"mainFeature\": \""+mainFeature+"\" \n} ";
-    }
+//    @Override
+//    public String toString() {
+//        return "{ \n   " +
+//                "   \"features\": "+features+",\n   " +
+//                "   \"mainFeature\": \""+mainFeature+"\" \n" +
+//                "} ";
+//    }
 }
