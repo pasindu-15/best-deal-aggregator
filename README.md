@@ -1,1 +1,1 @@
-# best-deal-product-detection
+# best-deal-aggregator
